@@ -47,7 +47,8 @@ class PARSE():
     """ InChI format specifications """
 
     @classmethod
-    def KEY_LAYER(cls, key):
+    def key_layer_(cls, key):
+        """ _ """
         return _key_layer(key)
 
     class PREFIX():
@@ -158,7 +159,7 @@ def formula_layer(ich):
 def key_layer(ich, key):
     """ a sublayer from the InChI string, by key
     """
-    key_layer_parser = PARSE.KEY_LAYER(key)
+    key_layer_parser = PARSE.key_layer_(key)
     cap_dct = _first_named_capture(key_layer_parser.PATTERN, ich)
     return cap_dct[key_layer_parser.LAYER_KEY] if cap_dct else None
 
@@ -166,7 +167,7 @@ def key_layer(ich, key):
 def key_layer_content(ich, key):
     """ a sublayer from the InChI string, by key
     """
-    key_layer_parser = PARSE.KEY_LAYER(key)
+    key_layer_parser = PARSE.key_layer_(key)
     cap_dct = _first_named_capture(key_layer_parser.PATTERN, ich)
     return cap_dct[key_layer_parser.CONTENT_KEY] if cap_dct else None
 

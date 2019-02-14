@@ -31,12 +31,12 @@ def nuclear_charge(sym):
             'NE': 10, 'AR': 18}[sym.upper()]
 
 
-def lone_pair_count(sym):
-    """ lone pair count
-    """
-    return {'H': 0, 'HE': 1,
-            'C': 0,
-            'N': 1,
-            'O': 2, 'S': 2,
-            'F': 3, 'CL': 3,
-            'NE': 4, 'AR': 4}[sym.upper()]
+# def lone_pair_count(sym):
+#     """ lone pair count
+#     """
+#     return {'H': 0, 'HE': 1,
+#             'C': 0,
+#             'N': 1,
+#             'O': 2, 'S': 2,
+#             'F': 3, 'CL': 3,
+#             'NE': 4, 'AR': 4}[sym.upper()]

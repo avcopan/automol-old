@@ -1,4 +1,4 @@
-""" core functions defining the graph structure
+""" core functions defining the graph data structure
 
 xgr = (atm_dct, bnd_dct)
 atm_dct: {atm_key: (atm_sym, atm_imp_hyd_vlc, atm_ste_par), ...}

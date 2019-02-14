@@ -132,7 +132,6 @@ def _bond_stereo_coordinates(anchor_key, bnd_key, atm_ngb_keys_dct, xyz_dct,
                              key_sorter, parity):
     """ assign bond-stereo coordinates from a stencil
     """
-    # start new
     stencil1_xyzs = ((0, 0, 0),                     # atm 1
                      (-1, 0, 0),                    # atm 1 ngb 0 (anchor?)
                      (1, 0, 0))                     # atm 1 ngb 1 (anchor?)
@@ -140,16 +139,6 @@ def _bond_stereo_coordinates(anchor_key, bnd_key, atm_ngb_keys_dct, xyz_dct,
     stencil2_xyzs = ((0, 1, 0),                     # atm 2
                      ((-1) ** (not parity), 1, 0),  # atm 2 ngb 0
                      ((-1) ** parity, 1, 0))        # atm 2 ngb 1
-    # end new
-
-    # start old
-    stencil_xyzs = ((0, 0, 0),                     # atm 1
-                    (0, 1, 0),                     # atm 2
-                    (-1, 0, 0),                    # atm 1 ngb 0 (anchor?)
-                    (1, 0, 0),                     # atm 1 ngb 1 (anchor?)
-                    ((-1) ** (not parity), 1, 0),  # atm 2 ngb 0
-                    ((-1) ** parity, 1, 0))        # atm 2 ngb 1
-    # end old
 
     atm1_key, atm2_key = bnd_key
     assert atm1_key in atm_ngb_keys_dct
@@ -164,32 +153,16 @@ def _bond_stereo_coordinates(anchor_key, bnd_key, atm_ngb_keys_dct, xyz_dct,
     atm1_ngb_keys -= {atm2_key}
     atm2_ngb_keys -= {atm1_key}
 
-    # start new
-    stencil1_keys = list(_chain([atm1_key], key_sorter(atm1_ngb_keys)))
-    stencil2_keys = list(_chain([atm2_key], key_sorter(atm2_ngb_keys)))
-    # end new
-
-    # start old
-    stencil_keys = list(_chain(
-        [atm1_key, atm2_key],
-        key_sorter(atm1_ngb_keys - {atm2_key}),
-        key_sorter(atm2_ngb_keys - {atm1_key})))
-    # end old
-
-    # start new
     stencil_xyz_dct = {}
-    stencil_xyz_dct.update(zip(stencil1_keys, stencil1_xyzs))
-    stencil_xyz_dct.update(zip(stencil2_keys, stencil2_xyzs))
-    stencil_keys = tuple(stencil_xyz_dct.keys())
-    stencil_xyzs = tuple(stencil_xyz_dct.values())
-    # end new
+    stencil_xyz_dct.update(
+        zip(_chain([atm1_key], key_sorter(atm1_ngb_keys)), stencil1_xyzs))
+    stencil_xyz_dct.update(
+        zip(_chain([atm2_key], key_sorter(atm2_ngb_keys)), stencil2_xyzs))
 
-    # start old
-    assert len(stencil_keys) == len(stencil_xyzs)
     xyz_dct = dict.copy(xyz_dct)
-    xyz_dct.update(_from_stencil(
-        atm1_key, anchor_key, xyz_dct, stencil_keys, stencil_xyzs))
-    # end old
+    xyz_dct.update(_from_stencil(atm1_key, anchor_key, xyz_dct,
+                                 stencil_xyz_dct.keys(),
+                                 stencil_xyz_dct.values()))
 
     boundary_edges = tuple(_chain(
         ((atm1_key, ngb_key) for ngb_key in atm1_ngb_keys - {anchor_key}),
@@ -199,6 +172,9 @@ def _bond_stereo_coordinates(anchor_key, bnd_key, atm_ngb_keys_dct, xyz_dct,
 
 
 def _from_stencil(atm_key, anchor_key, xyz_dct, stencil_keys, stencil_xyzs):
+    stencil_keys = tuple(stencil_keys)
+    stencil_xyzs = tuple(stencil_xyzs)
+
     assert atm_key in xyz_dct
     assert anchor_key in xyz_dct
 

@@ -16,7 +16,10 @@ jobs:
                 command: |
                     source activate automol-env
                     python setup.py install
+                    cd automol
                     pytest -v --cov=automol --pyargs automol
+                    flake8 --exit-zero autommol
+                    pylint --rcfile=../.pylintrc automol
 workflows:
     version: 2
     build-all:
