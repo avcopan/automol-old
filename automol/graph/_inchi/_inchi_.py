@@ -55,8 +55,16 @@ def _with_atom_inchi_numbers(xgr, atm_xyz_dct=None):
     """
     ich, bbn_ich_num_dct = _catch_hardcoded(xgr)
     if ich is None:
-        ich, bbn_ich_num_dct = _with_backbone_inchi_numbers(
-            xgr, atm_xyz_dct=atm_xyz_dct)
+        mlf, mlf_atm_key_dct = _molfile_with_atom_key_mapping(xgr, atm_xyz_dct)
+        rdm = _rdm_from_molfile(mlf)
+        ich, ich_aux = _rdm_to_inchi_with_aux_info(rdm)
+
+        # determine the inchi numbering from the AuxInfo string
+        ich_srt_mlf_bbn_keys = _ich_aux_sorted_atom_keys(ich_aux)
+        ich_srt_bbn_keys = _values_by_key(mlf_atm_key_dct,
+                                          ich_srt_mlf_bbn_keys)
+        assert set(ich_srt_bbn_keys) == set(backbone_keys(xgr))
+        bbn_ich_num_dct = dict(map(reversed, enumerate(ich_srt_bbn_keys)))
 
     atm_ich_num_dct = _fill_atom_inchi_numbers(xgr, bbn_ich_num_dct)
     return ich, atm_ich_num_dct
@@ -84,7 +92,7 @@ def _catch_hardcoded(xgr):
     return ich, bbn_ich_num_dct
 
 
-def _with_backbone_inchi_numbers(xgr, atm_xyz_dct=None):
+def _molfile_with_atom_key_mapping(xgr, atm_xyz_dct=None):
     rgr = dominant_resonance(xgr)
     atm_keys = list(atom_keys(rgr))
     bnd_keys = list(bond_keys(rgr))
@@ -97,15 +105,7 @@ def _with_backbone_inchi_numbers(xgr, atm_xyz_dct=None):
     mlf, mlf_atm_key_dct = _mlf_from_data(atm_keys, bnd_keys, atm_syms,
                                           atm_bnd_vlcs, atm_rad_vlcs, bnd_ords,
                                           atm_xyzs=atm_xyzs)
-    rdm = _rdm_from_molfile(mlf)
-    ich, ich_aux = _rdm_to_inchi_with_aux_info(rdm)
-
-    # determine the inchi numbering from the AuxInfo string
-    ich_srt_mlf_bbn_keys = _ich_aux_sorted_atom_keys(ich_aux)
-    ich_srt_bbn_keys = _values_by_key(mlf_atm_key_dct, ich_srt_mlf_bbn_keys)
-    assert set(ich_srt_bbn_keys) == set(backbone_keys(rgr))
-    bbn_ich_num_dct = dict(map(reversed, enumerate(ich_srt_bbn_keys)))
-    return ich, bbn_ich_num_dct
+    return mlf, mlf_atm_key_dct
 
 
 def _fill_atom_inchi_numbers(xgr, bbn_ich_num_dct):

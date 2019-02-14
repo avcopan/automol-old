@@ -85,13 +85,31 @@ def from_data(atm_keys, bnd_keys, atm_syms, atm_bnd_vlcs, atm_rad_vlcs,
     nbnds = len(bnd_keys)
 
     key_map = dict(zip(atm_keys, range(1, natms+1)))
-    bnd_cfg = 2 if atm_xyzs is None else 0
-    atm_xyzs = numpy.zeros((natms, 3)) if atm_xyzs is None else atm_xyzs
 
     counts_line = FMT.COUNTS.LINE(
         **{FMT.COUNTS.NA_KEY: natms,
            FMT.COUNTS.NB_KEY: nbnds})
 
+    atom_block = _atom_block(atm_keys, key_map, atm_syms, atm_bnd_vlcs,
+                             atm_rad_vlcs, atm_xyzs=atm_xyzs)
+
+    bond_block = _bond_block(bnd_keys, key_map, bnd_ords,
+                             with_stereo=(atm_xyzs is not None))
+
+    mlf = FMT.STRING(**{FMT.COUNTS_KEY: counts_line,
+                        FMT.ATOM_KEY: atom_block,
+                        FMT.BOND_KEY: bond_block})
+
+    # for recovering the original keys from those used in the molfile
+    key_map_inv = dict(map(reversed, key_map.items()))
+
+    return mlf, key_map_inv
+
+
+def _atom_block(atm_keys, key_map, atm_syms, atm_bnd_vlcs, atm_rad_vlcs,
+                atm_xyzs=None):
+    natms = len(atm_keys)
+    atm_xyzs = numpy.zeros((natms, 3)) if atm_xyzs is None else atm_xyzs
     atom_block = ''.join((
         FMT.ATOM.LINE(**{FMT.ATOM.I_KEY: key_map[key],
                          FMT.ATOM.S_KEY: sym,
@@ -102,7 +120,11 @@ def from_data(atm_keys, bnd_keys, atm_syms, atm_bnd_vlcs, atm_rad_vlcs,
                          FMT.ATOM.MULT_KEY: rad+1})
         for key, sym, (x, y, z), vlc, rad
         in zip(atm_keys, atm_syms, atm_xyzs, atm_bnd_vlcs, atm_rad_vlcs)))
+    return atom_block
 
+
+def _bond_block(bnd_keys, key_map, bnd_ords, with_stereo=False):
+    bnd_cfg = 0 if with_stereo else 2
     bond_block = ''.join((
         FMT.BOND.LINE(**{FMT.BOND.I_KEY: i+1,
                          FMT.BOND.ORDER_KEY: ord_,
@@ -111,12 +133,4 @@ def from_data(atm_keys, bnd_keys, atm_syms, atm_bnd_vlcs, atm_rad_vlcs,
                          FMT.BOND.CFG_KEY: bnd_cfg})
         for i, (key, ord_)
         in enumerate(zip(bnd_keys, bnd_ords))))
-
-    mlf = FMT.STRING(**{FMT.COUNTS_KEY: counts_line,
-                        FMT.ATOM_KEY: atom_block,
-                        FMT.BOND_KEY: bond_block})
-
-    # for recovering the original keys from those used in the molfile
-    key_map_inv = dict(map(reversed, key_map.items()))
-
-    return mlf, key_map_inv
+    return bond_block

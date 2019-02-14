@@ -1,4 +1,4 @@
-""" core functions defining the graph structure
+""" core functions defining the graph data structure
 
 xgr = (atm_dct, bnd_dct)
 atm_dct: {atm_key: (atm_sym, atm_imp_hyd_vlc, atm_ste_par), ...}
@@ -13,7 +13,7 @@ from ._dict import by_key as _by_key
 from ._dict import values_by_key as _values_by_key
 from ._dict.multi import by_key_by_position as _by_key_by_position
 from ._dict.multi import set_by_key_by_position as _set_by_key_by_position
-from ..atom import SYMBOLS as _ATM_SYMS
+from .. import atom as _atom
 
 ATM_SYM_POS = 0
 ATM_IMP_HYD_VLC_POS = 1
@@ -113,7 +113,8 @@ def _atom_key(xgr, atm_key):
 
 
 def _atom_values(atm_sym, atm_imp_hyd_vlc=0, atm_ste_par=None):
-    assert atm_sym in _ATM_SYMS
+    atm_sym = _atom.standard_case(atm_sym)
+    assert atm_sym in _atom.SYMBOLS
     assert isinstance(atm_imp_hyd_vlc, _Integer)
     assert atm_ste_par in (None, False, True)
     return (atm_sym, atm_imp_hyd_vlc, atm_ste_par)

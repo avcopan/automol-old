@@ -1,4 +1,4 @@
-""" molecular graph modules
+""" a molecular graph module
 
 xgr = (atm_dct, bnd_dct)
 atm_dct: {atm_key: (atm_val1, atm_val2, ...), ...}
@@ -102,7 +102,7 @@ from ._stereo import substereomers
 from ._stereo import enantiomerically_unique
 
 # submodules
-from . import _dict as dict
+from . import _dict as dict_
 
 
 __all__ = [
@@ -202,5 +202,5 @@ __all__ = [
     'enantiomerically_unique',
 
     # submodules
-    'dict',
+    'dict_',
 ]
