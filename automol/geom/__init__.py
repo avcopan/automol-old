@@ -1,6 +1,6 @@
 """ a cartesian geometry module
 """
-from ._core import from_symbols_and_coordinates
+from .._cnst.geom import from_data
 from ._core import symbols
 from ._core import coordinates
 from ._math import almost_equal
@@ -14,7 +14,7 @@ from ._io import from_dxyz_string
 
 
 __all__ = [
-    'from_symbols_and_coordinates',
+    'from_data',
     'symbols',
     'coordinates',
     'almost_equal',

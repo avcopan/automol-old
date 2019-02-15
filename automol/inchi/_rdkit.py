@@ -3,6 +3,8 @@
 from rdkit import RDLogger
 import rdkit.Chem as _rd_chem
 import rdkit.Chem.AllChem as _rd_all_chem
+from .._cnst.graph import from_data as _graph_from_data
+from .._cnst.geom import from_data as _geom_from_data
 
 _LOGGER = RDLogger.logger()
 _LOGGER.setLevel(RDLogger.ERROR)
@@ -55,15 +57,14 @@ def geometry(rdm):
     atms = rdm.GetAtoms()
     natms = len(rdm.GetAtoms())
     if natms == 1:
-        asb = atms[0].GetSymbol()
-        xyz = (0., 0., 0.)
-        geo = ((asb, xyz),)
+        syms = [str(atms[0].GetSymbol()).title()]
+        xyzs = [(0., 0., 0.)]
     else:
         _rd_all_chem.EmbedMolecule(rdm)
         _rd_all_chem.MMFFOptimizeMolecule(rdm)
-        asbs = tuple(rda.GetSymbol() for rda in atms)
+        syms = tuple(str(rda.GetSymbol()).title() for rda in atms)
         xyzs = tuple(map(tuple, rdm.GetConformer(0).GetPositions()))
-        geo = tuple(zip(asbs, xyzs))
+    geo = _geom_from_data(syms, xyzs, angstroms=True)
     return geo
 
 
@@ -73,7 +74,8 @@ def connectivity_graph(rdm):
     rdm = _rd_chem.AddHs(rdm)
     atms = rdm.GetAtoms()
     bnds = rdm.GetBonds()
-    asbs = dict(enumerate((rda.GetSymbol(), 0, None) for rda in atms))
-    cnns = {frozenset([rdb.GetBeginAtomIdx(), rdb.GetEndAtomIdx()]): (1, None)
-            for rdb in bnds}
-    return (asbs, cnns)
+    syms = [rda.GetSymbol() for rda in atms]
+    idx = {rda.GetIdx(): idx for idx, rda in enumerate(atms)}
+    bnds = [(idx[rdb.GetBeginAtomIdx()], idx[rdb.GetEndAtomIdx()])
+            for rdb in bnds]
+    return _graph_from_data(atom_symbols=syms, bond_keys=bnds)

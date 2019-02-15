@@ -5,7 +5,6 @@ from ._networkx import from_graph as _nxg_from_graph
 from ._networkx import minimal_rings_atom_keys as _nxg_minimal_rings_atom_keys
 from ._dict import by_key as _by_key
 from ._dict import values_by_key as _values_by_key
-from ._dict import transform_keys as _transform_keys
 from ._dict import transform_values as _transform_values
 from ._dict import transform_items_to_values as _transform_items_to_values
 from ._core import from_atoms_and_bonds as _from_atoms_and_bonds
@@ -152,25 +151,6 @@ def bond_induced_subgraph(xgr, bnd_keys):
 
 
 # transformations
-def relabel(xgr, atm_key_dct):
-    """ relabel the graph with new atom keys
-    """
-    orig_atm_keys = _atom_keys(xgr)
-    assert set(atm_key_dct.keys()) <= orig_atm_keys
-
-    new_atm_key_dct = dict(zip(orig_atm_keys, orig_atm_keys))
-    new_atm_key_dct.update(atm_key_dct)
-
-    _relabel_atom_key = new_atm_key_dct.__getitem__
-
-    def _relabel_bond_key(bnd_key):
-        return frozenset(map(_relabel_atom_key, bnd_key))
-
-    atm_dct = _transform_keys(_atoms(xgr), _relabel_atom_key)
-    bnd_dct = _transform_keys(_bonds(xgr), _relabel_bond_key)
-    return _from_atoms_and_bonds(atm_dct, bnd_dct)
-
-
 def delete_atoms(xgr, atm_keys):
     """ delete atoms from the molecular graph
     """

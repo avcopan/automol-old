@@ -8,11 +8,11 @@ bnd_key := frozenset({atm1_key, atm2_key})
 
 # core library
 # # constructors
+from .._cnst.graph import from_data
+from ._core import from_dictionaries
 from ._core import from_atoms_and_bonds
-from ._core import from_data
 from ._core import add_atoms
 from ._core import add_bonds
-from ._core import empty_graph
 # # value getters
 from ._core import atoms
 from ._core import bonds
@@ -24,6 +24,7 @@ from ._core import atom_stereo_parities
 from ._core import bond_orders
 from ._core import bond_stereo_parities
 # # value setters
+from ._core import relabel
 from ._core import set_atom_implicit_hydrogen_valences
 from ._core import set_atom_stereo_parities
 from ._core import set_bond_orders
@@ -48,7 +49,6 @@ from ._graph import rings_bond_keys
 from ._graph import subgraph
 from ._graph import bond_induced_subgraph
 # # transformations
-from ._graph import relabel
 from ._graph import delete_atoms
 
 # connectivity graph library
@@ -108,11 +108,11 @@ from . import _dict as dict_
 __all__ = [
     # core library
     # # constructors
-    'from_atoms_and_bonds',
     'from_data',
+    'from_dictionaries',
+    'from_atoms_and_bonds',
     'add_atoms',
     'add_bonds',
-    'empty_graph',
     # # value getters
     'atoms',
     'bonds',

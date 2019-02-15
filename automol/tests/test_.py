@@ -17,12 +17,12 @@ C2H2F2_SMI_NO_STEREO = 'FC=CF'
 C2H2F2_ICH = 'InChI=1S/C2H2F2/c3-1-2-4/h1-2H/b2-1+'
 C2H2F2_ICH_NO_STEREO = 'InChI=1S/C2H2F2/c3-1-2-4/h1-2H'
 C2H2F2_ICH_STEREO_UNKNOWN = 'InChI=1/C2H2F2/c3-1-2-4/h1-2H/b2-1?'
-C2H2F2_GEO = (('F', (1.584822920001, -0.748486564300, -0.4271224303432)),
-              ('C', (0.619219854789, 0.190165523008, -0.2716389279610)),
-              ('C', (-0.635730620967, -0.1839138961594, -0.1803643636082)),
-              ('F', (-1.602333181611, 0.736677675476, -0.02605091648865)),
-              ('H', (0.916321356258, 1.229945559249, -0.2271265738271)),
-              ('H', (-0.882300328471, -1.224388297273, -0.229635969682)))
+C2H2F2_GEO = (('F', (2.994881276150, -1.414434615111, -0.807144415388)),
+              ('C', (1.170155936996, 0.359360756989, -0.513323178859)),
+              ('C', (-1.201356763194, -0.347546894407, -0.3408392500119)),
+              ('F', (-3.027970874978, 1.39211904938, -0.0492290974807)),
+              ('H', (1.731596406235, 2.324260256203, -0.4292070203467)),
+              ('H', (-1.66730598121, -2.31375855306, -0.433949091252)))
 
 C8H13O_ICH = (
     'InChI=1S/C8H13O/c1-3-5-7-8(9)6-4-2/h3-6,8H,7H2,1-2H3/'
@@ -526,23 +526,23 @@ def test__inchi__stereo_graph():
 
 
 if __name__ == '__main__':
-    # test__smiles__inchi()
-    # test__inchi__smiles()
-    # test__inchi__recalculate()
-    # test__inchi__is_closed()
-    # test__inchi__prefix()
-    # test__inchi__version()
-    # test__inchi__formula_layer()
-    # test__inchi__key_layer()
-    # test__inchi__key_layer_content()
-    # test__inchi__core_parent()
-    # test__inchi__atom_stereo_elements()
-    # test__inchi__bond_stereo_elements()
-    # test__inchi__has_unknown_stereo_elements()
-    # test__inchi__compatible_stereoisomers()
-    # test__inchi__key__first_hash()
-    # test__inchi__key__second_hash()
-    # test__inchi__key__is_standard_neutral()
-    # test__inchi__geometry()
-    # test__inchi__connectivity_graph()
+    test__smiles__inchi()
+    test__inchi__smiles()
+    test__inchi__recalculate()
+    test__inchi__is_closed()
+    test__inchi__prefix()
+    test__inchi__version()
+    test__inchi__formula_layer()
+    test__inchi__key_layer()
+    test__inchi__key_layer_content()
+    test__inchi__core_parent()
+    test__inchi__atom_stereo_elements()
+    test__inchi__bond_stereo_elements()
+    test__inchi__has_unknown_stereo_elements()
+    test__inchi__compatible_stereoisomers()
+    test__inchi__key__first_hash()
+    test__inchi__key__second_hash()
+    test__inchi__key__is_standard_neutral()
+    test__inchi__geometry()
+    test__inchi__connectivity_graph()
     test__inchi__stereo_graph()

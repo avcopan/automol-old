@@ -5,10 +5,10 @@ from ._core import symbols as _symbols
 from ._core import coordinates as _coordinates
 
 
-def almost_equal(geom1, geom2):
-    """ are these geometries almost equal
+def almost_equal(geo1, geo2):
+    """ are these geometries almost equal?
     """
     ret = False
-    if _symbols(geom1) == _symbols(geom2):
-        ret = numpy.allclose(_coordinates(geom1), _coordinates(geom2))
+    if _symbols(geo1) == _symbols(geo2):
+        ret = numpy.allclose(_coordinates(geo1), _coordinates(geo2))
     return ret
