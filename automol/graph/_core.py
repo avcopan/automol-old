@@ -5,15 +5,13 @@ atm_dct: {atm_key: (atm_sym, atm_imp_hyd_vlc, atm_ste_par), ...}
 bnd_dct: {bnd_key: (bnd_ord, bnd_ste_par), ...}
 bnd_key := frozenset({atm1_key, atm2_key})
 """
-from numbers import Integral as _Integer
-from itertools import starmap as _starmap
 import numpy
-from ._dict import right_update as _right_update
+from .._cnst.graph import from_data as _from_data
+from ._dict import transform_keys as _transform_keys
 from ._dict import by_key as _by_key
 from ._dict import values_by_key as _values_by_key
 from ._dict.multi import by_key_by_position as _by_key_by_position
 from ._dict.multi import set_by_key_by_position as _set_by_key_by_position
-from .. import atom as _atom
 
 ATM_SYM_POS = 0
 ATM_IMP_HYD_VLC_POS = 1
@@ -30,63 +28,83 @@ def from_atoms_and_bonds(atm_dct, bnd_dct):
     return (atm_dct, bnd_dct)
 
 
-def from_data(atm_sym_dct, bnd_keys, atm_imp_hyd_vlc_dct=None,
-              atm_ste_par_dct=None, bnd_ord_dct=None, bnd_ste_par_dct=None):
-    """ molecular graph (any type) from data
+def from_dictionaries(atm_sym_dct, bnd_keys, atm_imp_hyd_vlc_dct=None,
+                      atm_ste_par_dct=None, bnd_ord_dct=None,
+                      bnd_ste_par_dct=None):
+    """ molecular graph from dictionaries over atom and bond keys
     """
-    xgr = empty_graph()
-    xgr = add_atoms(xgr, atm_sym_dct, atm_imp_hyd_vlc_dct=atm_imp_hyd_vlc_dct,
-                    atm_ste_par_dct=atm_ste_par_dct)
-    xgr = add_bonds(xgr, bnd_keys, bnd_ord_dct, bnd_ste_par_dct)
+    atm_keys = sorted(atm_sym_dct.keys())
+
+    def _values(dct, keys, fill_val=None):
+        dct = dict() if dct is None else dct
+        return _values_by_key(dct, keys, fill_val=fill_val)
+
+    xgr = _from_data(
+        atom_symbols=_values(atm_sym_dct, atm_keys),
+        bond_keys=[set(map(atm_keys.index, bnd_key)) for bnd_key in bnd_keys],
+        atom_implicit_hydrogen_valences=_values(
+            atm_imp_hyd_vlc_dct, atm_keys, fill_val=0),
+        atom_stereo_parities=_values(atm_ste_par_dct, atm_keys, fill_val=None),
+        bond_orders=_values(bnd_ord_dct, bnd_keys, fill_val=1),
+        bond_stereo_parities=_values(bnd_ste_par_dct, bnd_keys, fill_val=None)
+    )
+    xgr = relabel(xgr, dict(enumerate(atm_keys)))
     return xgr
 
 
-def add_atoms(xgr, atm_sym_dct, atm_imp_hyd_vlc_dct=None,
-              atm_ste_par_dct=None):
+def add_atoms(xgr, sym_dct, imp_hyd_vlc_dct=None, ste_par_dct=None):
     """ add atoms to this molecular graph
     """
-    atm_imp_hyd_vlc_dct = ({} if atm_imp_hyd_vlc_dct is None else
-                           atm_imp_hyd_vlc_dct)
-    atm_ste_par_dct = {} if atm_ste_par_dct is None else atm_ste_par_dct
+    atm_keys = atom_keys(xgr)
+    atm_sym_dct = atom_symbols(xgr)
+    atm_imp_hyd_vlc_dct = atom_implicit_hydrogen_valences(xgr)
+    atm_ste_par_dct = atom_stereo_parities(xgr)
+    bnd_keys = bond_keys(xgr)
+    bnd_ord_dct = bond_orders(xgr)
+    bnd_ste_par_dct = bond_stereo_parities(xgr)
 
-    atm_keys = atm_sym_dct.keys()
-    atm_keys = [_atom_key(xgr, atm_key) for atm_key in atm_keys]
-    assert set(atm_imp_hyd_vlc_dct.keys()) <= set(atm_keys)
-    assert set(atm_ste_par_dct.keys()) <= set(atm_keys)
+    keys = set(sym_dct.keys())
+    imp_hyd_vlc_dct = {} if imp_hyd_vlc_dct is None else imp_hyd_vlc_dct
+    ste_par_dct = {} if ste_par_dct is None else ste_par_dct
 
-    atm_vals_lst = tuple(_starmap(
-        _atom_values,
-        zip(*(_values_by_key(atm_sym_dct, atm_keys),
-              _values_by_key(atm_imp_hyd_vlc_dct, atm_keys, fill_val=0),
-              _values_by_key(atm_ste_par_dct, atm_keys, fill_val=None)))))
+    assert not keys & atm_keys
+    assert set(imp_hyd_vlc_dct.keys()) <= keys
+    assert set(ste_par_dct.keys()) <= keys
 
-    atm_dct = _right_update(atoms(xgr), dict(zip(atm_keys, atm_vals_lst)))
-    return from_atoms_and_bonds(atm_dct, bonds(xgr))
+    atm_sym_dct.update(sym_dct)
+    atm_imp_hyd_vlc_dct.update(imp_hyd_vlc_dct)
+    atm_ste_par_dct.update(ste_par_dct)
+
+    xgr = from_dictionaries(atm_sym_dct, bnd_keys, atm_imp_hyd_vlc_dct,
+                            atm_ste_par_dct, bnd_ord_dct, bnd_ste_par_dct)
+    return xgr
 
 
-def add_bonds(xgr, bnd_keys, bnd_ord_dct=None, bnd_ste_par_dct=None):
+def add_bonds(xgr, keys, ord_dct=None, ste_par_dct=None):
     """ add bonds to this molecular graph
     """
-    bnd_ord_dct = {} if bnd_ord_dct is None else bnd_ord_dct
-    bnd_ste_par_dct = {} if bnd_ste_par_dct is None else bnd_ste_par_dct
+    atm_sym_dct = atom_symbols(xgr)
+    atm_imp_hyd_vlc_dct = atom_implicit_hydrogen_valences(xgr)
+    atm_ste_par_dct = atom_stereo_parities(xgr)
+    bnd_keys = set(bond_keys(xgr))
+    bnd_ord_dct = bond_orders(xgr)
+    bnd_ste_par_dct = bond_stereo_parities(xgr)
 
-    bnd_keys = [_bond_key(xgr, *bnd_key) for bnd_key in bnd_keys]
-    assert set(bnd_ord_dct.keys()) <= set(bnd_keys)
-    assert set(bnd_ste_par_dct.keys()) <= set(bnd_keys)
+    keys = set(keys)
+    ord_dct = {} if ord_dct is None else ord_dct
+    ste_par_dct = {} if ste_par_dct is None else ste_par_dct
 
-    bnd_vals_lst = tuple(_starmap(
-        _bond_values,
-        zip(*(_values_by_key(bnd_ord_dct, bnd_keys, fill_val=1),
-              _values_by_key(bnd_ste_par_dct, bnd_keys, fill_val=None)))))
+    assert not keys & bnd_keys
+    assert set(ord_dct.keys()) <= keys
+    assert set(ste_par_dct.keys()) <= keys
 
-    bnd_dct = _right_update(bonds(xgr), dict(zip(bnd_keys, bnd_vals_lst)))
-    return from_atoms_and_bonds(atoms(xgr), bnd_dct)
+    bnd_keys.update(keys)
+    bnd_ord_dct.update(ord_dct)
+    bnd_ste_par_dct.update(ste_par_dct)
 
-
-def empty_graph():
-    """ a molecular graph with no atoms
-    """
-    return from_atoms_and_bonds(dict(), dict())
+    xgr = from_dictionaries(atm_sym_dct, bnd_keys, atm_imp_hyd_vlc_dct,
+                            atm_ste_par_dct, bnd_ord_dct, bnd_ste_par_dct)
+    return xgr
 
 
 def frozen(xgr):
@@ -104,32 +122,6 @@ def frozen(xgr):
     frz_atms = tuple(zip(atm_keys, map(tuple, atm_vals)))
     frz_bnds = tuple(zip(bnd_keys, map(tuple, bnd_vals)))
     return (frz_atms, frz_bnds)
-
-
-def _atom_key(xgr, atm_key):
-    assert isinstance(atm_key, _Integer)
-    assert atm_key not in atom_keys(xgr)
-    return int(atm_key)
-
-
-def _atom_values(atm_sym, atm_imp_hyd_vlc=0, atm_ste_par=None):
-    atm_sym = _atom.standard_case(atm_sym)
-    assert atm_sym in _atom.SYMBOLS
-    assert isinstance(atm_imp_hyd_vlc, _Integer)
-    assert atm_ste_par in (None, False, True)
-    return (atm_sym, atm_imp_hyd_vlc, atm_ste_par)
-
-
-def _bond_key(xgr, atm1_key, atm2_key):
-    assert atm1_key in atom_keys(xgr)
-    assert atm2_key in atom_keys(xgr)
-    return frozenset({int(atm1_key), int(atm2_key)})
-
-
-def _bond_values(bnd_ord=1, bnd_ste_par=None):
-    assert isinstance(bnd_ord, _Integer)
-    assert bnd_ste_par in (None, False, True)
-    return (bnd_ord, bnd_ste_par)
 
 
 # value getters
@@ -191,6 +183,25 @@ def bond_stereo_parities(sgr):
 
 
 # value setters
+def relabel(xgr, atm_key_dct):
+    """ relabel the graph with new atom keys
+    """
+    orig_atm_keys = atom_keys(xgr)
+    assert set(atm_key_dct.keys()) <= orig_atm_keys
+
+    new_atm_key_dct = dict(zip(orig_atm_keys, orig_atm_keys))
+    new_atm_key_dct.update(atm_key_dct)
+
+    _relabel_atom_key = new_atm_key_dct.__getitem__
+
+    def _relabel_bond_key(bnd_key):
+        return frozenset(map(_relabel_atom_key, bnd_key))
+
+    atm_dct = _transform_keys(atoms(xgr), _relabel_atom_key)
+    bnd_dct = _transform_keys(bonds(xgr), _relabel_bond_key)
+    return from_atoms_and_bonds(atm_dct, bnd_dct)
+
+
 def set_atom_implicit_hydrogen_valences(xgr, atm_imp_hyd_vlc_dct):
     """ set atom implicit hydrogen valences
     """

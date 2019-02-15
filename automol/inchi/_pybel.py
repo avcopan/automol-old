@@ -1,6 +1,7 @@
 """ pybel interface
 """
 import pybel
+from .._cnst.geom import from_data as _geom_from_data
 
 
 def from_inchi(ich):
@@ -16,9 +17,9 @@ def geometry(pbm):
     pbm.addh()
     pbm.make3D()
     anbs = [atm.atomicnum for atm in pbm.atoms]
-    asbs = list(map(_atomic_symbol, anbs))
+    syms = list(map(_atomic_symbol, anbs))
     xyzs = tuple(tuple(atm.coords) for atm in pbm.atoms)
-    geo = tuple(zip(asbs, xyzs))
+    geo = _geom_from_data(syms, xyzs, angstroms=True)
     return geo
 
 
@@ -37,4 +38,4 @@ def _atomic_symbol(anum):
                   'PA', 'U', 'NP', 'PU', 'AM', 'CM', 'BK', 'CF', 'ES', 'FM',
                   'MD', 'NO', 'LR', 'RF', 'DB', 'SG', 'BH', 'HS', 'MT', 'DS',
                   'RG', 'UUB', 'UUT', 'UUQ', 'UUP', 'UUH', 'UUS', 'UUO']
-    return anum2asymb[anum]
+    return anum2asymb[anum].title()

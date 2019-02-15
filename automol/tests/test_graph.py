@@ -334,15 +334,15 @@ def test__from_atoms_and_bonds():
         atm_dct=graph.atoms(C8H13O_CGR), bnd_dct=graph.bonds(C8H13O_CGR))
 
 
-def test__from_data():
-    """ test graph.from_data
+def test__from_dictionaries():
+    """ test graph.from_dictionaries
     """
-    assert graph.from_data(
+    assert graph.from_dictionaries(
         graph.atom_symbols(CH2FH2H_CGR_EXP),
         graph.bond_keys(CH2FH2H_CGR_EXP)
     ) == CH2FH2H_CGR_EXP
 
-    assert graph.from_data(
+    assert graph.from_dictionaries(
         graph.atom_symbols(C8H13O_RGRS[0]),
         graph.bond_keys(C8H13O_RGRS[0]),
         atm_imp_hyd_vlc_dct=graph.atom_implicit_hydrogen_valences(
@@ -350,7 +350,7 @@ def test__from_data():
         bnd_ord_dct=graph.bond_orders(C8H13O_RGRS[0])
     ) == C8H13O_RGRS[0]
 
-    assert graph.from_data(
+    assert graph.from_dictionaries(
         graph.atom_symbols(C8H13O_SGRS[0]),
         graph.bond_keys(C8H13O_SGRS[0]),
         atm_imp_hyd_vlc_dct=graph.atom_implicit_hydrogen_valences(
@@ -358,6 +358,20 @@ def test__from_data():
         atm_ste_par_dct=graph.atom_stereo_parities(C8H13O_SGRS[0]),
         bnd_ste_par_dct=graph.bond_stereo_parities(C8H13O_SGRS[0])
     ) == C8H13O_SGRS[0]
+
+    # a litte ridiculous, but make sure we get the keys right
+    sgr_ref = C8H13O_SGRS[0]
+    natms = len(graph.atoms(sgr_ref))
+    for _ in range(10):
+        pmt_dct = dict(enumerate(numpy.random.permutation(natms)))
+        sgr = graph.relabel(sgr_ref, pmt_dct)
+        assert graph.from_dictionaries(
+            graph.atom_symbols(sgr),
+            graph.bond_keys(sgr),
+            atm_imp_hyd_vlc_dct=graph.atom_implicit_hydrogen_valences(sgr),
+            atm_ste_par_dct=graph.atom_stereo_parities(sgr),
+            bnd_ste_par_dct=graph.bond_stereo_parities(sgr)
+        ) == sgr
 
 
 # # transformations
@@ -746,7 +760,7 @@ def test__enantiomerically_unique():
 
 if __name__ == '__main__':
     # test__from_atoms_and_bonds()
-    # test__from_data()
+    # test__from_dictionaries()
     # test__atom_neighbor_keys()
     # test__atom_bond_keys()
     # test__bond_neighbor_keys()
