@@ -1,7 +1,8 @@
 """ functions operating on atomic symbols
 """
 
-SYMBOLS = ['H', 'He',
+SYMBOLS = ['X',
+           'H', 'He',
            'C',
            'N',
            'O', 'S',
@@ -18,7 +19,8 @@ def standard_case(sym):
 def valence(sym):
     """ bonding valence
     """
-    return {'H': 1, 'He': 0,
+    return {'X': 0,
+            'H': 1, 'He': 0,
             'C': 4,
             'N': 3,
             'O': 2, 'S': 2,
@@ -29,7 +31,8 @@ def valence(sym):
 def nuclear_charge(sym):
     """ nuclear charge
     """
-    return {'H': 1, 'He': 2,
+    return {'X': 0,
+            'H': 1, 'He': 2,
             'C': 6,
             'N': 7,
             'O': 8, 'S': 16,
@@ -40,7 +43,8 @@ def nuclear_charge(sym):
 # def lone_pair_count(sym):
 #     """ lone pair count
 #     """
-#     return {'H': 0, 'HE': 1,
+#     return {'X': 0,
+#             'H': 0, 'HE': 1,
 #             'C': 0,
 #             'N': 1,
 #             'O': 2, 'S': 2,

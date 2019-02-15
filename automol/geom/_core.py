@@ -3,7 +3,7 @@
 
 
 def symbols(geo):
-    """ a dictionary of atomic symbols by index
+    """ atomic symbols
     """
     if geo:
         syms, _ = zip(*geo)
@@ -13,7 +13,7 @@ def symbols(geo):
 
 
 def coordinates(geo):
-    """ a dictionary of coordinates by index
+    """ atomic coordinates
     """
     if geo:
         _, xyzs = zip(*geo)

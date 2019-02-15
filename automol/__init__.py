@@ -9,7 +9,7 @@ from . import zmatrix
 __all__ = [
     'smiles',
     'inchi',
+    'graph',
     'geom',
     'zmatrix',
-    'graph',
 ]

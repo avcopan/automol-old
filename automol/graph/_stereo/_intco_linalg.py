@@ -1,7 +1,7 @@
 """ integer 3-vector library
 """
-from numbers import Real as _RealNumber
-from numbers import Integral as _Integer
+from numbers import Real as _Real
+from numbers import Integral as _Integral
 import numpy
 
 
@@ -69,7 +69,7 @@ def rotation_matrix(uint_xyz, clicks):
     :rtype: ((int, int, int), (int, int, int), (int, int, int))
     """
     assert is_unit_integer_triple(uint_xyz)
-    assert isinstance(clicks, _Integer)
+    assert isinstance(clicks, _Integral)
     angle = clicks * numpy.pi / 2.
     cos = int(numpy.cos(angle))
     sin = int(numpy.sin(angle))
@@ -127,5 +127,5 @@ def is_integer_triple(vec):
 def is_integer(num):
     """ is this number an integer?
     """
-    assert isinstance(num, _RealNumber)
-    return isinstance(num, _Integer) or float.is_integer(num)
+    assert isinstance(num, _Real)
+    return isinstance(num, _Integral) or float.is_integer(num)
