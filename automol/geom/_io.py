@@ -46,23 +46,23 @@ def string(geo, to_angstroms=True):
     return geo_str
 
 
-def from_dxyz_string(dxyz_str, with_comment_line=False):
+def from_xyz_string(xyz_str):
     """ read a cartesian geometry from a .xyz string
     """
-    lines = dxyz_str.splitlines()
+    lines = xyz_str.splitlines()
     assert apf.has_match(app.UNSIGNED_INTEGER, lines[0])
     natms = int(lines[0])
-    comment_line = lines[1]
+    # comment_line = lines[1]
     geo_str = '\n'.join(lines[2:natms+2])
     geo = from_string(geo_str, angstroms=True, strict=True)
-    return geo if not with_comment_line else (geo, comment_line)
+    return geo
 
 
-def dxyz_string(geo, comment_line=''):
+def xyz_string(geo, comment=''):
     """ write the cartesian geometry to a .xyz string
     """
     natms = len(_symbols(geo))
-    assert not apf.has_match(app.NEWLINE, comment_line)
+    assert not apf.has_match(app.NEWLINE, comment)
     geo_str = string(geo)
-    dxyz_str = '{:d}\n{:s}\n{:s}'.format(natms, comment_line, geo_str)
-    return dxyz_str
+    xyz_str = '{:d}\n{:s}\n{:s}'.format(natms, comment, geo_str)
+    return xyz_str

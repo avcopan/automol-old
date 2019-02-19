@@ -6,7 +6,6 @@ from ._core import symbols as _symbols
 from ._core import key_matrix as _key_matrix
 from ._core import value_matrix as _value_matrix
 from ._core import coordinate_matrix as _coordinate_matrix
-from .parse import comment_line as _comment_line
 from .parse import matrix_block as _matrix_block
 from .parse import matrix_symbols as _matrix_symbols
 from .parse import variable_block as _variable_block
@@ -15,13 +14,9 @@ from .parse import matrix_keys_and_entries as _matrix_keys_and_entries
 from .. import _units
 
 
-def from_zmat_string(zma_str, with_auxinfo=False):
+def from_zmat_string(zma_str):
     """ read a z-matrix from a .zmat string
-
-    if with_auxinfo is set, we return the comment line and the named variable
-    value dictionary
     """
-    comment = _comment_line(zma_str)
     mat_str = _matrix_block(zma_str)
     var_str = _variable_block(zma_str)
     val_dct = _variable_values(var_str)
@@ -42,7 +37,7 @@ def from_zmat_string(zma_str, with_auxinfo=False):
                                                else _units.DEG2RAD)
 
     zma = _from_matrices(syms, key_mat, val_mat)
-    return zma if not with_auxinfo else (zma, var_dct, comment)
+    return zma, var_dct
 
 
 def zmat_string(zma, var_dct=None, comment=''):

@@ -15,7 +15,7 @@ C2H2CLF_CGR = ({0: ('F', 0, None), 1: ('C', 0, None), 2: ('C', 0, None),
                {frozenset({0, 1}): (1, None), frozenset({1, 2}): (1, None),
                 frozenset({1, 4}): (1, None), frozenset({2, 3}): (1, None),
                 frozenset({2, 5}): (1, None)})
-C2H2CLF_DXYZ_STR = """6
+C2H2CLF_XYZ_STR = """6
 charge: 0, mult: 1
 F    1.584823  -0.748487  -0.427122
 C    0.619220   0.190166  -0.271639
@@ -66,16 +66,11 @@ def test__from_string():
         geom.from_string(geom.string(C2H2CLF_GEO)), C2H2CLF_GEO)
 
 
-def test__from_dxyz_string():
-    """ test geom.from_dxyz_string
+def test__from_xyz_string():
+    """ test geom.from_xyz_string
     """
     assert geom.almost_equal(
-        geom.from_dxyz_string(geom.dxyz_string(C2H2CLF_GEO)), C2H2CLF_GEO)
-
-    geo, comment_line = geom.from_dxyz_string(C2H2CLF_DXYZ_STR,
-                                              with_comment_line=True)
-    dxyz_str = geom.dxyz_string(geo, comment_line=comment_line)
-    assert dxyz_str.rstrip() == C2H2CLF_DXYZ_STR.rstrip()
+        geom.from_xyz_string(geom.xyz_string(C2H2CLF_GEO)), C2H2CLF_GEO)
 
 
 if __name__ == '__main__':
@@ -83,6 +78,6 @@ if __name__ == '__main__':
     # test__inchi()
     # test__stereo_inchi()
     # test__from_string()
-    # test__from_dxyz_string()
+    # test__from_xyz_string()
     test__from_data()
     test__is_valid()

@@ -10,8 +10,8 @@ from ._inchi import inchi
 from ._inchi import stereo_inchi
 from ._io import string
 from ._io import from_string
-from ._io import dxyz_string
-from ._io import from_dxyz_string
+from ._io import xyz_string
+from ._io import from_xyz_string
 
 
 __all__ = [
@@ -25,6 +25,6 @@ __all__ = [
     'stereo_inchi',
     'string',
     'from_string',
-    'dxyz_string',
-    'from_dxyz_string',
+    'xyz_string',
+    'from_xyz_string',
 ]
