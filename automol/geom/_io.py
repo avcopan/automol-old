@@ -11,15 +11,16 @@ from ._core import coordinates as _coordinates
 ATOM_SYMBOL_PATTERN = app.LETTER + app.maybe(app.LETTER)
 
 
-def from_string(geo_str, angstroms=True):
+def from_string(geo_str, angstroms=True, strict=True):
     """ read a cartesian geometry from a string
     """
-    # first check the string
-    line_pattern = app.maybe(app.LINESPACES).join(
-        [app.LINE_START, ATOM_SYMBOL_PATTERN] + [app.FLOAT] * 3 +
-        [app.LINE_END])
-    lines = apf.strip_spaces(geo_str).splitlines()
-    assert all(apf.has_match(line_pattern, line) for line in lines)
+    if strict:
+        # first check the string
+        line_pattern = app.maybe(app.LINESPACES).join(
+            [app.LINE_START, ATOM_SYMBOL_PATTERN] + [app.FLOAT] * 3 +
+            [app.LINE_END])
+        lines = apf.strip_spaces(geo_str).splitlines()
+        assert all(apf.has_match(line_pattern, line) for line in lines)
 
     sym_capturing_pattern = app.LINESPACES.join(
         [app.capturing(ATOM_SYMBOL_PATTERN)] + [app.FLOAT] * 3)
@@ -53,7 +54,7 @@ def from_dxyz_string(dxyz_str, with_comment_line=False):
     natms = int(lines[0])
     comment_line = lines[1]
     geo_str = '\n'.join(lines[2:natms+2])
-    geo = from_string(geo_str, angstroms=True)
+    geo = from_string(geo_str, angstroms=True, strict=True)
     return geo if not with_comment_line else (geo, comment_line)
 
 
