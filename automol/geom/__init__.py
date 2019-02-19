@@ -3,6 +3,7 @@
 from .._cnst.geom import from_data
 from ._core import symbols
 from ._core import coordinates
+from ._core import is_valid
 from ._math import almost_equal
 from ._graph import connectivity_graph
 from ._inchi import inchi
@@ -17,6 +18,7 @@ __all__ = [
     'from_data',
     'symbols',
     'coordinates',
+    'is_valid',
     'almost_equal',
     'connectivity_graph',
     'inchi',

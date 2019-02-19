@@ -26,6 +26,12 @@ H   -0.882300  -1.224388  -0.229636
 """
 
 
+def test__is_valid():
+    """ test geom.is_valid
+    """
+    assert geom.is_valid(C2H2CLF_GEO)
+
+
 def test__from_data():
     """ test geom.from_data
     """
@@ -79,3 +85,4 @@ if __name__ == '__main__':
     # test__from_string()
     # test__from_dxyz_string()
     test__from_data()
+    test__is_valid()

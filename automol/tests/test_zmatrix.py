@@ -1,6 +1,7 @@
 """ test the automol.zmatrix module
 """
 from automol import zmatrix
+from automol import geom
 
 H_ZMA = (('H', (None, None, None), (None, None, None)),)
 
@@ -67,6 +68,12 @@ d3 = 180.0
 def test__from_data():
     """ test zmatrix.from_data
     """
+    assert geom.is_valid(H_ZMA) is False
+    assert geom.is_valid(HO_ZMA) is False
+    assert geom.is_valid(HO2_ZMA) is False
+    assert geom.is_valid(H2O2_ZMA) is False
+    assert geom.is_valid(CH4O_ZMA) is False
+
     assert H_ZMA == zmatrix.from_data(
         symbols=zmatrix.symbols(H_ZMA),
         distance_column=zmatrix.distance_column(H_ZMA),
