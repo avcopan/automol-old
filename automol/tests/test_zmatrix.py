@@ -150,23 +150,18 @@ def test__coordinate_matrix():
 def test__from_zmat_string():
     """ test zmatrix.from_zmat_string
     """
-    zma, var_dct, comment = zmatrix.from_zmat_string(CH4O_ZMA_STR,
-                                                     with_auxinfo=True)
+    zma, var_dct = zmatrix.from_zmat_string(CH4O_ZMA_STR)
     assert zmatrix.almost_equal(zma, CH4O_ZMA)
     assert var_dct == CH4O_VAR_DCT
-    assert comment == CH4O_ZMA_STR.splitlines()[0]
 
 
 def test__zmat_string():
     """ test zmatrix.zmat_string
     """
-    comment = CH4O_ZMA_STR.splitlines()[0]
-    zma_str = zmatrix.zmat_string(CH4O_ZMA, CH4O_VAR_DCT, comment=comment)
-    zma, var_dct, comment = zmatrix.from_zmat_string(zma_str,
-                                                     with_auxinfo=True)
+    zma_str = zmatrix.zmat_string(CH4O_ZMA, CH4O_VAR_DCT)
+    zma, var_dct = zmatrix.from_zmat_string(zma_str)
     assert zmatrix.almost_equal(zma, CH4O_ZMA)
     assert var_dct == CH4O_VAR_DCT
-    assert comment == CH4O_ZMA_STR.splitlines()[0]
 
 
 if __name__ == '__main__':

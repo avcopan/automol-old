@@ -3,6 +3,7 @@
 import numpy
 import autoparse.pattern as app
 import autoparse.find as apf
+import autoparse.conv as apc
 from .._cnst.geom import from_data
 from .. import _units
 from ._core import symbols as _symbols
@@ -14,22 +15,24 @@ ATOM_SYMBOL_PATTERN = app.LETTER + app.maybe(app.LETTER)
 def from_string(geo_str, angstroms=True, strict=True):
     """ read a cartesian geometry from a string
     """
+    pattern = app.LINESPACES.join([
+        app.capturing(ATOM_SYMBOL_PATTERN),
+        app.capturing(app.FLOAT),
+        app.capturing(app.FLOAT),
+        app.capturing(app.FLOAT),
+    ])
+
     if strict:
         # first check the string
         line_pattern = app.maybe(app.LINESPACES).join(
-            [app.LINE_START, ATOM_SYMBOL_PATTERN] + [app.FLOAT] * 3 +
-            [app.LINE_END])
+            [app.LINE_START, pattern, app.LINE_END])
         lines = apf.strip_spaces(geo_str).splitlines()
         assert all(apf.has_match(line_pattern, line) for line in lines)
 
-    sym_capturing_pattern = app.LINESPACES.join(
-        [app.capturing(ATOM_SYMBOL_PATTERN)] + [app.FLOAT] * 3)
-    xyz_capturing_pattern = app.LINESPACES.join(
-        [ATOM_SYMBOL_PATTERN] + [app.capturing(app.FLOAT)] * 3)
-
-    syms = apf.all_captures(sym_capturing_pattern, geo_str)
-    xyz_strs_lst = apf.all_captures(xyz_capturing_pattern, geo_str)
-    xyzs = tuple(tuple(map(float, xyz_strs)) for xyz_strs in xyz_strs_lst)
+    mcaps = apf.all_captures(pattern, geo_str)
+    mvals = apc.multis(mcaps, dtypes=(str, float, float, float))
+    syms = tuple(mval[0] for mval in mvals)
+    xyzs = tuple(mval[1:] for mval in mvals)
     geo = from_data(syms, xyzs, angstroms=angstroms)
     return geo
 
@@ -46,23 +49,23 @@ def string(geo, to_angstroms=True):
     return geo_str
 
 
-def from_dxyz_string(dxyz_str, with_comment_line=False):
+def from_xyz_string(xyz_str):
     """ read a cartesian geometry from a .xyz string
     """
-    lines = dxyz_str.splitlines()
+    lines = xyz_str.splitlines()
     assert apf.has_match(app.UNSIGNED_INTEGER, lines[0])
     natms = int(lines[0])
-    comment_line = lines[1]
+    # comment_line = lines[1]
     geo_str = '\n'.join(lines[2:natms+2])
     geo = from_string(geo_str, angstroms=True, strict=True)
-    return geo if not with_comment_line else (geo, comment_line)
+    return geo
 
 
-def dxyz_string(geo, comment_line=''):
+def xyz_string(geo, comment=''):
     """ write the cartesian geometry to a .xyz string
     """
     natms = len(_symbols(geo))
-    assert not apf.has_match(app.NEWLINE, comment_line)
+    assert not apf.has_match(app.NEWLINE, comment)
     geo_str = string(geo)
-    dxyz_str = '{:d}\n{:s}\n{:s}'.format(natms, comment_line, geo_str)
-    return dxyz_str
+    xyz_str = '{:d}\n{:s}\n{:s}'.format(natms, comment, geo_str)
+    return xyz_str
